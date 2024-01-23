@@ -1,5 +1,12 @@
 const baseUrl = "https://swapi2.azurewebsites.net/api/films";
 
+addEventListener('DOMContentLoaded', () => {
+  const sp = new URLSearchParams(window.location.search);
+  const id = sp.get('id');
+
+  getFilm(id);
+});
+
 async function getFilm(id) {
   let film;
 
@@ -8,10 +15,15 @@ async function getFilm(id) {
     film.characters = await fetchCharacters(id);
     film.planets = await fetchPlanets(id);
   } catch (ex) {
-    console.log(ex);
+    console.error(ex);
   }
 
   console.log(film);
+  renderFilm(film);
+}
+
+function renderFilm(film) {
+  document.title = film.title;
 }
 
 async function fetchFilm(id) {
