@@ -21,19 +21,37 @@ addEventListener('DOMContentLoaded', () => {
 
 async function getPlanet(id) {
   let planet;
+
+  if (localStorage.getItem("planets")) {
+    planets = JSON.parse(localStorage.getItem("planets"));
+
+    console.log("Fetched planets from local storage");
+  } else {
+    try {
+      planets = await fetchPlanets()
+
+      localStorage.setItem("planets", JSON.stringify(planets));
+    }
+    catch (ex) {
+      console.error(`Error fetching planets from API`, ex.message);
+    }
+
+    console.log("Fetched planets from API")
+  }
+
+  planet = planets.filter(planet => planet.id == id)[0];
+
   try {
-    planet = await fetchPlanet(id)
     planet.characters = await fetchCharacters(planet)
     planet.films = await fetchFilms(planet)
+  } catch(ex) {
+    console.error(ex);
   }
-  catch (ex) {
-    console.error(`Error reading planet ${id} data.`, ex.message);
-  }
+  
   renderPlanet(planet);
-
 }
-async function fetchPlanet(id) {
-  let planetUrl = `${baseUrl}/planets/${id}`;
+async function fetchPlanets() {
+  let planetUrl = `${baseUrl}/planets/`;
   return await fetch(planetUrl)
     .then(res => res.json())
 }
