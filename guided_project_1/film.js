@@ -26,16 +26,34 @@ addEventListener('DOMContentLoaded', () => {
 });
 
 async function getFilm(id) {
-  let film;
+  let films;
 
-  try {
-    film = await fetchFilm(id);
-    film.characters = await fetchCharacters(id);
-    film.planets = await fetchPlanets(id);
-  } catch (ex) {
-    console.error(ex);
+  if (localStorage.getItem("films")) {
+    films = JSON.parse(localStorage.getItem("films"));
+
+    console.log("Fetched films from local storage");
+  } else {
+    try {
+      films = await fetchFilms()
+
+      localStorage.setItem("films", JSON.stringify(films));
+    }
+    catch (ex) {
+      console.error(`Error fetching films from API`, ex.message);
+    }
+
+    console.log("Fetched planets from API");
   }
 
+  let film = films.filter(film => film.id == id)[0];
+
+  try {
+    film.characters = await fetchCharacters(film);
+    film.planets = await fetchPlanets(film);
+  } catch(ex) {
+    console.error(ex);
+  }
+  
   renderFilm(film);
 }
 
@@ -57,20 +75,22 @@ function renderFilm(film) {
   charactersUl.innerHTML = characters.join('');
 }
 
-async function fetchFilm(id) {
-    let filmUrl = `${baseUrl}/${id}`;
+async function fetchFilms() {
+    let filmUrl = `${baseUrl}/`;
     return await fetch(filmUrl)
       .then(res => res.json());
 }
 
-async function fetchCharacters(id) {
-    let charactersUrl = `${baseUrl}/${id}/characters`;
-    return await fetch(charactersUrl)
-      .then(res => res.json());
+async function fetchCharacters(film) {
+    let charactersUrl = `${baseUrl}/${film?.id}/characters`;
+    
+    const characters = await fetch(charactersUrl)
+    .then(res => res.json());
+    return characters;
 }
 
-async function fetchPlanets(id) {
-    let planetsUrl = `${baseUrl}/${id}/planets`;
+async function fetchPlanets(film) {
+    let planetsUrl = `${baseUrl}/${film?.id}/planets`;
     return await fetch(planetsUrl)
       .then(res => res.json());
 }
