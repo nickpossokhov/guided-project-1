@@ -3,7 +3,6 @@ let climate;
 let diameter;
 let terrain;
 let population;
-// let planetDiv;
 const baseUrl = `https://swapi2.azurewebsites.net/api`;
 
 // Runs on page load
@@ -13,7 +12,7 @@ addEventListener('DOMContentLoaded', () => {
   diameter = document.querySelector('span#diameter');
   terrain = document.querySelector('span#terrain');
   population = document.querySelector('span#population');
-  inhabitantsUl = document.querySelector('#characters>ul');
+  characterUl = document.querySelector('#characters>ul');
   filmsUl = document.querySelector('#films>ul');
   const sp = new URLSearchParams(window.location.search)
   const id = sp.get('id')
@@ -24,7 +23,7 @@ async function getPlanet(id) {
   let planet;
   try {
     planet = await fetchPlanet(id)
-    planet.inhabitants = await fetchHomeworld(planet)
+    planet.characters = await fetchCharacters(planet)
     planet.films = await fetchFilms(planet)
   }
   catch (ex) {
@@ -39,11 +38,11 @@ async function fetchPlanet(id) {
     .then(res => res.json())
 }
 
-async function fetchHomeworld(character) {
-  const url = `${baseUrl}/planets/${character?.homeworld}`;
-  const planet = await fetch(url)
+async function fetchCharacters(planet) {
+  const url = `${baseUrl}/planets/${planet?.id}/characters`;
+  const characters = await fetch(url)
     .then(res => res.json())
-  return planet;
+  return characters;
 }
 
 async function fetchFilms(character) {
@@ -60,7 +59,8 @@ const renderPlanet = planet => {
   diameter.textContent = planet?.diameter;
   terrain.textContent = planet?.terrain;
   population.textContent = planet?.population;
-  homeworldSpan.innerHTML = `<a href="/planet.html?id=${planet?.homeworld.id}">${planet?.homeworld.name}</a>`;
+  const characterList = planet?.characters?.map(character => `<li><a href="/character.html?id=${character.id}">${character.name}</li>`)
+  characterUl.innerHTML = characterList.join("");
   const filmsLis = planet?.films?.map(film => `<li><a href="/film.html?id=${film.id}">${film.title}</li>`)
   filmsUl.innerHTML = filmsLis.join("");
 }
