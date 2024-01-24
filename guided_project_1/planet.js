@@ -17,25 +17,25 @@ addEventListener('DOMContentLoaded', () => {
   filmsUl = document.querySelector('#films>ul');
   const sp = new URLSearchParams(window.location.search)
   const id = sp.get('id')
-  getCharacter(id)
+  getPlanet(id)
 });
 
-async function getCharacter(id) {
-  let character;
+async function getPlanet(id) {
+  let planet;
   try {
-    character = await fetchCharacter(id)
-    character.homeworld = await fetchHomeworld(character)
-    character.films = await fetchFilms(character)
+    planet = await fetchPlanet(id)
+    planet.inhabitants = await fetchHomeworld(planet)
+    planet.films = await fetchFilms(planet)
   }
   catch (ex) {
-    console.error(`Error reading character ${id} data.`, ex.message);
+    console.error(`Error reading planet ${id} data.`, ex.message);
   }
-  renderCharacter(character);
+  renderPlanet(planet);
 
 }
-async function fetchCharacter(id) {
-  let characterUrl = `${baseUrl}/characters/${id}`;
-  return await fetch(characterUrl)
+async function fetchPlanet(id) {
+  let planetUrl = `${baseUrl}/planets/${id}`;
+  return await fetch(planetUrl)
     .then(res => res.json())
 }
 
@@ -53,13 +53,14 @@ async function fetchFilms(character) {
   return films;
 }
 
-const renderCharacter = character => {
-  document.title = `SWAPI - ${character?.name}`;  // Just to make the browser tab say their name
-  nameH1.textContent = character?.name;
-  heightSpan.textContent = character?.height;
-  massSpan.textContent = character?.mass;
-  birthYearSpan.textContent = character?.birth_year;
-  homeworldSpan.innerHTML = `<a href="/planet.html?id=${character?.homeworld.id}">${character?.homeworld.name}</a>`;
-  const filmsLis = character?.films?.map(film => `<li><a href="/film.html?id=${film.id}">${film.title}</li>`)
+const renderPlanet = planet => {
+  document.title = `SWAPI - ${planet?.name}`;  // Just to make the browser tab say their name
+  nameH1.textContent = planet?.name;
+  climate.textContent = planet?.climate;
+  diameter.textContent = planet?.diameter;
+  terrain.textContent = planet?.terrain;
+  population.textContent = planet?.population;
+  homeworldSpan.innerHTML = `<a href="/planet.html?id=${planet?.homeworld.id}">${planet?.homeworld.name}</a>`;
+  const filmsLis = planet?.films?.map(film => `<li><a href="/film.html?id=${film.id}">${film.title}</li>`)
   filmsUl.innerHTML = filmsLis.join("");
 }
