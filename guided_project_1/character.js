@@ -23,7 +23,7 @@ async function getCharacter(id) {
   let character;
   try {
     character = await fetchCharacter(id)
-    character.homeworld = await fetchHomeworld(character)
+    character.homeworld = await fetchCharacters(character)
     character.films = await fetchFilms(character)
   }
   catch (ex) {
@@ -38,7 +38,7 @@ async function fetchCharacter(id) {
     .then(res => res.json())
 }
 
-async function fetchHomeworld(character) {
+async function fetchCharacters(character) {
   const url = `${baseUrl}/planets/${character?.homeworld}`;
   const planet = await fetch(url)
     .then(res => res.json())
