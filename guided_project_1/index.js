@@ -7,14 +7,25 @@ document.addEventListener('DOMContentLoaded', getCharacters)
 async function getCharacters() {
   let url = 'https://swapi2.azurewebsites.net/api/characters';
 
-  try {
-    const fetchedCharacters = await fetch(url)
-      .then(res => res.json())
-    characters.push(...fetchedCharacters);
+  if (localStorage.getItem("characters")) {
+    characters = JSON.parse(localStorage.getItem("characters"));
+
+    console.log("Fetched characters from local storage");
+  } else {
+    try {
+      const fetchedCharacters = await fetch(url)
+        .then(res => res.json())
+      characters.push(...fetchedCharacters);
+  
+      localStorage.setItem("characters", JSON.stringify(characters));
+    }
+    catch (ex) {
+      console.error("Error reading characters.", ex.message);
+    }
+
+    console.log("Fetched characters from API")
   }
-  catch (ex) {
-    console.error("Error reading characters.", ex.message);
-  }
+
   console.log("All the characters are ", characters)
   renderCharacters(characters);
 }
