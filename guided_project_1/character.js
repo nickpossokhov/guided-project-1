@@ -20,25 +20,44 @@ addEventListener('DOMContentLoaded', () => {
 });
 
 async function getCharacter(id) {
-  let character;
-  try {
-    character = await fetchCharacter(id)
-    character.homeworld = await fetchCharacters(character)
-    character.films = await fetchFilms(character)
-  }
-  catch (ex) {
-    console.error(`Error reading character ${id} data.`, ex.message);
-  }
-  renderCharacter(character);
+  let characters;
 
+  if (localStorage.getItem("characters")) {
+    characters = JSON.parse(localStorage.getItem("characters"));
+
+    console.log("Fetched characters from local storage");
+  } else {
+    try {
+      characters = await fetchCharacters();
+
+      localStorage.setItem("characters", JSON.stringify(characters));
+    }
+    catch (ex) {
+      console.error(`Error fetching characters from API`, ex.message);
+    }
+
+    console.log("Fetched characters from API");
+  }
+
+  let character = characters.filter(character => character.id == id)[0];
+
+  try {
+    character.films = await fetchFilms(character);
+    character.homeworld = await fetchHomeworld(character);
+  } catch(ex) {
+    console.error(ex);
+  }
+  
+  renderCharacter(character);
 }
-async function fetchCharacter(id) {
-  let characterUrl = `${baseUrl}/characters/${id}`;
+
+async function fetchCharacters() {
+  let characterUrl = `${baseUrl}/characters/`;
   return await fetch(characterUrl)
     .then(res => res.json())
 }
 
-async function fetchCharacters(character) {
+async function fetchHomeworld(character) {
   const url = `${baseUrl}/planets/${character?.homeworld}`;
   const planet = await fetch(url)
     .then(res => res.json())

@@ -42,7 +42,7 @@ async function getFilm(id) {
       console.error(`Error fetching films from API`, ex.message);
     }
 
-    console.log("Fetched planets from API");
+    console.log("Fetched films from API");
   }
 
   let film = films.filter(film => film.id == id)[0];
